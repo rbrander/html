@@ -40,14 +40,67 @@ function clearBoard()
 
 function drawPixel(x, y, color)
 {
+	if (x < 0 || y < 0 || x > getPixelWidth() || y > getPixelHeight())
+		return;
     var ctx = getContext();
     ctx.fillStyle = color;
     ctx.fillRect(BLOCK_SIZE + (x * BLOCK_SIZE), BLOCK_SIZE + (y * BLOCK_SIZE), BLOCK_SIZE / 2, BLOCK_SIZE / 2);
 }
 
+function drawBox(x1, y1, x2, y2)
+{
+    for (var x = x1; x < x2; x++) {
+        drawPixel(x, y1, colorPixelOn);
+        drawPixel(x, y2, colorPixelOn);
+    }
+    for (var y = y1; y < y2; y++) {
+        drawPixel(x1, y, colorPixelOn);
+        drawPixel(x2, y, colorPixelOn);
+    }
+}
+
+function drawLineBox(x1, y1, x2, y2)
+{
+	drawLine(x1, y1, x2, y1);
+	drawLine(x1, y2, x2, y2);
+	drawLine(x1, y1, x1, y2);
+	drawLine(x2, y1, x2, y2);
+}
+
+function drawLine(x1, y1, x2, y2)
+{
+	var tmp;
+	
+	// flip if greater
+	if (x1 > x2) {
+		tmp = x1;
+		x1 = x2;
+		x2 = tmp;
+	}
+	if (y1 > y2) {
+		tmp = y1;
+		y1 = y2;
+		y2 = tmp;
+	}
+
+	// calculate the delta
+	var dx = x2 - x1
+	var dy = y2 - y1
+	
+	if (dx > dy) {
+		var step = Math.floor(dx/dy);
+		for (var x = x1; x <= x2; x++)
+			drawPixel(x, y1 + Math.floor((x-x1) / step), colorPixelOn);
+	} else {
+		var step = Math.floor(dy/dx);
+		for (var y = y1; y <= y2; y++)
+			drawPixel(x1 + Math.floor((y-y1) / step), y, colorPixelOn);
+	}
+}
+
 
 // draw a box in the middle
-function drawBox(boxWidth)
+function drawCenteredBox(boxWidth)
 {
     var width = getPixelWidth();
     var height = getPixelHeight();
@@ -58,12 +111,69 @@ function drawBox(boxWidth)
     var y2 = y1 + boxWidth;
     
     clearBoard();
-    for (var x = x1; x < x2; x++) {
-        drawPixel(x, y1, colorPixelOn);
-        drawPixel(x, y2, colorPixelOn);
-    }
-    for (var y = y1; y < y2; y++) {
-        drawPixel(x1, y, colorPixelOn);
-        drawPixel(x2, y, colorPixelOn);
-    }
+	drawBox(x1, y1, x2, y2);
 }
+
+
+function DegsToRads(degrees) {
+	return ((Math.PI*2) / 360) * degrees;
+}
+
+
+function drawRotatedBox(boxWidth, rads)
+{	
+	/*
+		maxtrix multiplication:
+		[ x, y ] * [cos, -sin
+					sin, cos]
+					
+		x' = x*cos + y*-sin 
+		y' = y*sin, + x*cos
+		
+		given a box:
+		a-----b
+		|     |
+		|	  |
+		c-----d
+		
+		
+	*/
+	
+    var width = getPixelWidth();
+	var halfw = Math.floor(width / 2);
+    var height = getPixelHeight();
+	var halfh = Math.floor(height / 2);
+    
+	// relative coordiates to center
+    var ax = (width - boxWidth) / 2 - halfw
+    var ay = (height - boxWidth) / 2 - halfh;
+	var dx = ax + boxWidth - halfw;
+    var dy = ay + boxWidth - halfh;
+    var bx = dx
+	var by = ay;
+	var cx = ax;
+	var cy = dy
+	
+    var ax2 = Math.floor(halfw + rotateX(ax, ay, rads));
+    var ay2 = Math.floor(halfh + rotateY(ax, ay, rads));
+	var bx2 = Math.floor(halfw + rotateX(bx, by, rads));
+    var by2 = Math.floor(halfh + rotateY(bx, by, rads));
+	var cx2 = Math.floor(halfw + rotateX(cx, cy, rads));
+    var cy2 = Math.floor(halfh + rotateY(cx, cy, rads));
+    var dx2 = Math.floor(halfw + rotateX(dx, dy, rads));
+    var dy2 = Math.floor(halfh + rotateY(dx, dy, rads));
+	
+	drawLine(ax2, ay2, bx2, by2);
+	drawLine(bx2, by2, dx2, dy2);
+	drawLine(dx2, dy2, cx2, cy2);
+	drawLine(cx2, cy2, ax2, ay2);
+}
+
+function rotateX(x, y, rads) {
+	return Math.floor((x * Math.cos(rads)) - (y * Math.sin(rads)));
+}
+
+function rotateY(x, y, rads) {
+	return Math.floor((x * Math.sin(rads)) + (y * Math.cos(rads)));
+}
+

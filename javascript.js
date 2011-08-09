@@ -14,8 +14,10 @@ $(function() {
     console.log("Width: " + getPixelWidth());
     console.log("Height: " + getPixelHeight());
     
-    //setInterval(cbSineWaveDrawer, 60);
-    //drawBox(16);
-    setInterval(cbBoxResizeDrawer, 140);
-});
+ });
 
+function launch() {
+	//setInterval(cbSineWaveDrawer, 60);
+	//setInterval(cbBoxResizeDrawer, 140);
+	setInterval(cbBoxSpinDrawer, 140);
+}

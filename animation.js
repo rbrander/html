@@ -39,9 +39,22 @@ function cbBoxResizeDrawer()
     currOffset += 1;
     if ((currOffset % 40) === 0)
         currOffset = 0;
-    drawBox(currOffset);
+    drawCenteredBox(currOffset);
     var end = new Date();
     console.log("draw took "+(end.getMilliseconds() - start.getMilliseconds())+"ms");
 }
 
 var currOffset = 0;
+
+function cbBoxSpinDrawer()
+{
+    var start = new Date();
+    clearBoard();
+    currOffset += 1;
+    if (currOffset == 360)
+        currOffset = 0;
+	drawRotatedBox(32, DegsToRads(currOffset));
+    var end = new Date();
+    console.log("draw took "+(end.getMilliseconds() - start.getMilliseconds())+"ms");
+}
+
