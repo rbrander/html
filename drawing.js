@@ -69,9 +69,9 @@ function drawLineBox(x1, y1, x2, y2)
 
 function drawLine(x1, y1, x2, y2)
 {
-	var tmp;
-	
+	/*
 	// flip if greater
+	var tmp;
 	if (x1 > x2) {
 		tmp = x1;
 		x1 = x2;
@@ -82,6 +82,7 @@ function drawLine(x1, y1, x2, y2)
 		y1 = y2;
 		y2 = tmp;
 	}
+	*/
 
 	// calculate the delta
 	var dx = x2 - x1
@@ -111,7 +112,7 @@ function drawCenteredBox(boxWidth)
     var y2 = y1 + boxWidth;
     
     clearBoard();
-	drawBox(x1, y1, x2, y2);
+	drawLineBox(x1, y1, x2, y2);
 }
 
 
@@ -119,9 +120,9 @@ function DegsToRads(degrees) {
 	return ((Math.PI*2) / 360) * degrees;
 }
 
-
-function drawRotatedBox(boxWidth, rads)
-{	
+function drawRotatedBox(boxDiameter, rads)
+{
+	// http://www.gpwiki.org/index.php/VB:Tutorials:Rotating_A_Point_In_2D
 	/*
 		maxtrix multiplication:
 		[ x, y ] * [cos, -sin
@@ -135,8 +136,6 @@ function drawRotatedBox(boxWidth, rads)
 		|     |
 		|	  |
 		c-----d
-		
-		
 	*/
 	
     var width = getPixelWidth();
@@ -145,15 +144,23 @@ function drawRotatedBox(boxWidth, rads)
 	var halfh = Math.floor(height / 2);
     
 	// relative coordiates to center
-    var ax = (width - boxWidth) / 2 - halfw
-    var ay = (height - boxWidth) / 2 - halfh;
-	var dx = ax + boxWidth - halfw;
-    var dy = ay + boxWidth - halfh;
+    var ax = Math.floor((width - boxDiameter) / 2);
+    var ay = Math.floor((height - boxDiameter) / 2);
+	var dx = ax + boxDiameter;
+    var dy = ay + boxDiameter;
+	//drawLineBox(ax,ay, dx,dy);
+	/*
+    var ax = Math.floor((width - boxDiameter) / 2) - halfw;
+    var ay = Math.floor((height - boxDiameter) / 2) - halfh;
+	var dx = ax + boxDiameter - halfw;
+    var dy = ay + boxDiameter - halfh;
+	*/
     var bx = dx
 	var by = ay;
 	var cx = ax;
 	var cy = dy
 	
+	/*
     var ax2 = Math.floor(halfw + rotateX(ax, ay, rads));
     var ay2 = Math.floor(halfh + rotateY(ax, ay, rads));
 	var bx2 = Math.floor(halfw + rotateX(bx, by, rads));
@@ -162,18 +169,68 @@ function drawRotatedBox(boxWidth, rads)
     var cy2 = Math.floor(halfh + rotateY(cx, cy, rads));
     var dx2 = Math.floor(halfw + rotateX(dx, dy, rads));
     var dy2 = Math.floor(halfh + rotateY(dx, dy, rads));
+	*/
+	
+	/*
+    var ax2 = Math.floor(rotateX(ax, ay, rads));
+    var ay2 = Math.floor(rotateY(ax, ay, rads));
+	var bx2 = Math.floor(rotateX(bx, by, rads));
+    var by2 = Math.floor(rotateY(bx, by, rads));
+	var cx2 = Math.floor(rotateX(cx, cy, rads));
+    var cy2 = Math.floor(rotateY(cx, cy, rads));
+    var dx2 = Math.floor(rotateX(dx, dy, rads));
+    var dy2 = Math.floor(rotateY(dx, dy, rads));
+	*/
+    var ax2 = Math.floor(rotateXPoint(ax, ay, rads, halfw, halfh));
+    var ay2 = Math.floor(rotateYPoint(ax, ay, rads, halfw, halfh));
+	var bx2 = Math.floor(rotateXPoint(bx, by, rads, halfw, halfh));
+    var by2 = Math.floor(rotateYPoint(bx, by, rads, halfw, halfh));
+	var cx2 = Math.floor(rotateXPoint(cx, cy, rads, halfw, halfh));
+    var cy2 = Math.floor(rotateYPoint(cx, cy, rads, halfw, halfh));
+    var dx2 = Math.floor(rotateXPoint(dx, dy, rads, halfw, halfh));
+    var dy2 = Math.floor(rotateYPoint(dx, dy, rads, halfw, halfh));
+	
+	console.log("before (" + ax + ", " + ay + "), (" + bx + ", " + by + "), (" + cx + ", " + cy + "), (" + dx + ", " + dy + ")");
+	console.log("after  (" + ax2 + ", " + ay2 + "), (" + bx2 + ", " + by2 + "), (" + cx2 + ", " + cy2 + "), (" + dx2 + ", " + dy2 + ")");
 	
 	drawLine(ax2, ay2, bx2, by2);
 	drawLine(bx2, by2, dx2, dy2);
-	drawLine(dx2, dy2, cx2, cy2);
-	drawLine(cx2, cy2, ax2, ay2);
+	drawLine(cx2, cy2, dx2, dy2);
+	drawLine(ax2, ay2, cx2, cy2);
 }
 
 function rotateX(x, y, rads) {
-	return Math.floor((x * Math.cos(rads)) - (y * Math.sin(rads)));
+	//return Math.floor((x * Math.cos(rads)) - (y * Math.sin(rads)));
+	return rotateXPoint(x, y, rads, 0, 0);
+}
+
+// rotates x, y around the point px,py by rads radians
+function rotateXPoint(x, y, rads, px, py)
+{
+	// RotatePoint.X = pOrigin.X + ( Cos(D2R(Degrees)) * (pPoint.X - pOrigin.X) - Sin(D2R(Degrees)) * (pPoint.Y - pOrigin.Y) )
+	return Math.floor(px + ((x-px) * Math.cos(rads)) - ((y-py) * Math.sin(rads)));
 }
 
 function rotateY(x, y, rads) {
-	return Math.floor((x * Math.sin(rads)) + (y * Math.cos(rads)));
+	//return Math.floor((x * Math.sin(rads)) + (y * Math.cos(rads)));
+	return rotateYPoint(x, y, rads, 0, 0);
+}
+// rotates x, y around the point px,py by rads radians
+function rotateYPoint(x, y, rads, px, py)
+{
+	// RotatePoint.Y = pOrigin.Y + ( Sin(D2R(Degrees)) * (pPoint.X - pOrigin.X) + Cos(D2R(Degrees)) * (pPoint.Y - pOrigin.Y) )
+	return Math.floor(py + ((x - px) * Math.sin(rads)) + ((y-py) * Math.cos(rads)));
+}
+
+// mostly for testing
+function draw_pixel_arc()
+{
+	var x = 30;
+	var y = 0;
+	for (var angle = 0; angle <= 90; angle++) {
+		var _x = rotateX(x, y, DegsToRads(angle));
+		var _y = rotateY(x, y, DegsToRads(angle));
+		drawPixel(_x, _y, colorPixelOn);
+	}
 }
 

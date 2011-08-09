@@ -19,5 +19,10 @@ $(function() {
 function launch() {
 	//setInterval(cbSineWaveDrawer, 60);
 	//setInterval(cbBoxResizeDrawer, 140);
-	setInterval(cbBoxSpinDrawer, 140);
+	setInterval(cbBoxSpinDrawer, 60);
+	
+	
+	//drawRotatedBox(10, DegsToRads(15));
+	//drawRotatedBox(10, DegsToRads(45));
+	
 }

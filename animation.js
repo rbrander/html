@@ -51,10 +51,20 @@ function cbBoxSpinDrawer()
     var start = new Date();
     clearBoard();
     currOffset += 1;
-    if (currOffset == 360)
+    if (currOffset == 90)
         currOffset = 0;
-	drawRotatedBox(32, DegsToRads(currOffset));
+	drawRotatedBox(16, DegsToRads(currOffset));
     var end = new Date();
     console.log("draw took "+(end.getMilliseconds() - start.getMilliseconds())+"ms");
 }
 
+function drawRandomLine()
+{
+	var width = getPixelWidth();
+	var height = getPixelHeight();
+	var x1 = width * Math.random();
+	var y1 = height * Math.random();
+	var x2 = width * Math.random();
+	var y2 = height * Math.random();
+	drawLine(x1, y1, x2, y2);
+}
