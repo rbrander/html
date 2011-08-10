@@ -58,13 +58,22 @@ function cbBoxSpinDrawer()
     console.log("draw took "+(end.getMilliseconds() - start.getMilliseconds())+"ms");
 }
 
+function cbRandomLinesDrawer()
+{
+    var start = new Date();
+    //clearBoard();
+	drawRandomLine();
+    var end = new Date();
+    console.log("draw took "+(end.getMilliseconds() - start.getMilliseconds())+"ms");
+}
+
 function drawRandomLine()
 {
 	var width = getPixelWidth();
 	var height = getPixelHeight();
-	var x1 = width * Math.random();
-	var y1 = height * Math.random();
-	var x2 = width * Math.random();
-	var y2 = height * Math.random();
+	var x1 = Math.round(width * Math.random());
+	var y1 = Math.round(height * Math.random());
+	var x2 = Math.round(width * Math.random());
+	var y2 = Math.round(height * Math.random());
 	drawLine(x1, y1, x2, y2);
 }

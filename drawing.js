@@ -67,6 +67,12 @@ function drawLineBox(x1, y1, x2, y2)
 	drawLine(x2, y1, x2, y2);
 }
 
+// Function will return -1, 0 or +1 which matches the sign of the value passed in
+// for example, -24 will return -1; 39 will return +1 and 0 will return 0.
+function sign(a) {
+	return (a < 0 ? -1 : (a > 0 ? +1 : 0));
+}
+
 function drawLine(x1, y1, x2, y2)
 {
 	/*
@@ -83,20 +89,72 @@ function drawLine(x1, y1, x2, y2)
 		y2 = tmp;
 	}
 	*/
-
+//console.log(x1, y1, x2, y2);
+	var dx = sign(x1 - x2);
+	var dy = sign(y1 - y2);
+console.log("dx = " + dx + "; dy = " + dy);
+	
+	// if we have a straight horizontal line
+	if (dy == 0) {
+		if (dx < 0)
+			for (var x = x1; x <= x2; x++)
+				drawPixel(x, y1, colorPixelOn);
+		else if (dx > 0)
+			for (var x = x2; x <= x1; x++)
+				drawPixel(x, y1, colorPixelOn);
+	} else if (dx == 0) {	// if we have a straight vertical line
+		if (dy < 0)
+			for (var y = y1; y <= y2; y++)
+				drawPixel(x1, y, colorPixelOn);
+		else if (dy > 0)
+			for (var y = y2; y <= y1; y++)
+				drawPixel(x1, y, colorPixelOn);
+	} else {
+		// we have a diagonal line
+		var xlength = Math.abs(x1 - x2);
+		var ylength = Math.abs(y1 - y2);
+console.log('xlength = ' + xlength + '; ylength = ' + ylength);
+		
+		var xslope = xlength / ylength;
+		var yslope = ylength / xlength;
+console.log('xslope = ' + xslope + '; yslope = ' + yslope);
+console.log('(yslope/xslope) = ' + (yslope/xslope));
+		if ((yslope / xslope < 1) && (yslope / xslope > -1)) {
+			if (dx < 0) {
+				console.log('here');
+				for (var x = x1; x <= x2; x++)
+					drawPixel(x, Math.round(yslope*x), colorPixelOn);
+			}else if (dx > 0)
+				for (var x = x2; x <= x1; x++)
+					drawPixel(x, Math.round(yslope*x), colorPixelOn);
+		} else {
+			if (dy < 0)
+				for (var y = y1; y <= y2; y++)
+					drawPixel(Math.round(xslope*y), y, colorPixelOn);
+			else if (dy > 0)
+				for (var y = y2; y <= y1; y++)
+					drawPixel(Math.round(xslope*y), y, colorPixelOn);
+		}
+	}
+	
+	/*
+	old code
 	// calculate the delta
 	var dx = x2 - x1
 	var dy = y2 - y1
 	
 	if (dx > dy) {
-		var step = Math.floor(dx/dy);
+		//var step = Math.floor(dx/dy);
+		var step = (dx/dy);
 		for (var x = x1; x <= x2; x++)
 			drawPixel(x, y1 + Math.floor((x-x1) / step), colorPixelOn);
 	} else {
-		var step = Math.floor(dy/dx);
+		// var step = Math.floor(dy/dx);
+		var step = (dy/dx);
 		for (var y = y1; y <= y2; y++)
 			drawPixel(x1 + Math.floor((y-y1) / step), y, colorPixelOn);
 	}
+	*/
 }
 
 
@@ -117,7 +175,7 @@ function drawCenteredBox(boxWidth)
 
 
 function DegsToRads(degrees) {
-	return ((Math.PI*2) / 360) * degrees;
+	return (Math.PI / 180) * degrees;
 }
 
 function drawRotatedBox(boxDiameter, rads)
@@ -197,6 +255,13 @@ function drawRotatedBox(boxDiameter, rads)
 	drawLine(bx2, by2, dx2, dy2);
 	drawLine(cx2, cy2, dx2, dy2);
 	drawLine(ax2, ay2, cx2, cy2);
+	
+	// draw red dots for the corners
+	var colorRed = "rgb(230, 0, 0)";
+	drawPixel(ax2, ay2, colorRed);
+	drawPixel(bx2, by2, colorRed);
+	drawPixel(cx2, cy2, colorRed);
+	drawPixel(dx2, dy2, colorRed);
 }
 
 function rotateX(x, y, rads) {

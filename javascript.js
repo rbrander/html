@@ -8,18 +8,20 @@ var colorBackground = 'rgb(0,0,0)';
 var colorPixelOff = 'rgb(80,80,80)';
 var colorPixelOn = 'rgb(220, 220, 220)';
 
+var intervalID;
 
 $(function() {
     clearBoard();
     console.log("Width: " + getPixelWidth());
     console.log("Height: " + getPixelHeight());
-    
+    drawLine(0, 10, 20, 0);
  });
 
 function launch() {
-	//setInterval(cbSineWaveDrawer, 60);
-	//setInterval(cbBoxResizeDrawer, 140);
-	setInterval(cbBoxSpinDrawer, 60);
+	//intervalID = setInterval(cbSineWaveDrawer, 60);
+	//intervalID = setInterval(cbBoxResizeDrawer, 140);
+	//intervalID = setInterval(cbBoxSpinDrawer, 60);
+	intervalID = setInterval(cbRandomLinesDrawer, 10);
 	
 	
 	//drawRotatedBox(10, DegsToRads(15));
