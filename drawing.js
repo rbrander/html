@@ -75,88 +75,36 @@ function sign(a) {
 
 function drawLine(x1, y1, x2, y2)
 {
-	/*
-	// flip if greater
-	var tmp;
-	if (x1 > x2) {
-		tmp = x1;
-		x1 = x2;
-		x2 = tmp;
+	var X = x1;
+	var Y = y1;
+	var xdiff = x2 - x1;
+	var ydiff = y2 - y1;
+	var d1x = sign(xdiff);
+	var d1y = sign(ydiff);
+	var d2x = d1x;
+	var d2y = 0;
+	var xlength = Math.abs(xdiff);
+	var ylength = Math.abs(ydiff);
+	if (xlength <= ylength) {
+		d2x = 0;
+		d2y = d1y;
+		xlength = ylength;
+		ylength = Math.abs(ydiff);
 	}
-	if (y1 > y2) {
-		tmp = y1;
-		y1 = y2;
-		y2 = tmp;
-	}
-	*/
-//console.log(x1, y1, x2, y2);
-	var dx = sign(x1 - x2);
-	var dy = sign(y1 - y2);
-console.log("dx = " + dx + "; dy = " + dy);
-	
-	// if we have a straight horizontal line
-	if (dy == 0) {
-		if (dx < 0)
-			for (var x = x1; x <= x2; x++)
-				drawPixel(x, y1, colorPixelOn);
-		else if (dx > 0)
-			for (var x = x2; x <= x1; x++)
-				drawPixel(x, y1, colorPixelOn);
-	} else if (dx == 0) {	// if we have a straight vertical line
-		if (dy < 0)
-			for (var y = y1; y <= y2; y++)
-				drawPixel(x1, y, colorPixelOn);
-		else if (dy > 0)
-			for (var y = y2; y <= y1; y++)
-				drawPixel(x1, y, colorPixelOn);
-	} else {
-		// we have a diagonal line
-		var xlength = Math.abs(x1 - x2);
-		var ylength = Math.abs(y1 - y2);
-console.log('xlength = ' + xlength + '; ylength = ' + ylength);
-		
-		var xslope = xlength / ylength;
-		var yslope = ylength / xlength;
-console.log('xslope = ' + xslope + '; yslope = ' + yslope);
-console.log('(yslope/xslope) = ' + (yslope/xslope));
-		if ((yslope / xslope < 1) && (yslope / xslope > -1)) {
-			if (dx < 0) {
-				console.log('here');
-				for (var x = x1; x <= x2; x++)
-					drawPixel(x, Math.round(yslope*x), colorPixelOn);
-			}else if (dx > 0)
-				for (var x = x2; x <= x1; x++)
-					drawPixel(x, Math.round(yslope*x), colorPixelOn);
+	var step = Math.round(xlength / 2);
+	for (var i = 0; i < Math.round(xlength); i++) {	// todo: check if we even need Math.round cause i believe xlength is always an int
+		drawPixel(X, Y, colorPixelOn);
+		step += ylength;
+		if (step >= xlength) {
+			step -= xlength;
+			X += Math.round(d1x);	// todo: check if we need Math.round
+			Y += Math.round(d1y);	// todo: check if we need Math.round
 		} else {
-			if (dy < 0)
-				for (var y = y1; y <= y2; y++)
-					drawPixel(Math.round(xslope*y), y, colorPixelOn);
-			else if (dy > 0)
-				for (var y = y2; y <= y1; y++)
-					drawPixel(Math.round(xslope*y), y, colorPixelOn);
+			X += Math.round(d2x);	// todo: check if we need Math.round
+			Y += Math.round(d2y);	// todo: check if we need Math.round
 		}
 	}
-	
-	/*
-	old code
-	// calculate the delta
-	var dx = x2 - x1
-	var dy = y2 - y1
-	
-	if (dx > dy) {
-		//var step = Math.floor(dx/dy);
-		var step = (dx/dy);
-		for (var x = x1; x <= x2; x++)
-			drawPixel(x, y1 + Math.floor((x-x1) / step), colorPixelOn);
-	} else {
-		// var step = Math.floor(dy/dx);
-		var step = (dy/dx);
-		for (var y = y1; y <= y2; y++)
-			drawPixel(x1 + Math.floor((y-y1) / step), y, colorPixelOn);
-	}
-	*/
 }
-
 
 // draw a box in the middle
 function drawCenteredBox(boxWidth)

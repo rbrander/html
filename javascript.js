@@ -14,17 +14,17 @@ $(function() {
     clearBoard();
     console.log("Width: " + getPixelWidth());
     console.log("Height: " + getPixelHeight());
-    drawLine(0, 10, 20, 0);
- });
+});
 
 function launch() {
 	//intervalID = setInterval(cbSineWaveDrawer, 60);
 	//intervalID = setInterval(cbBoxResizeDrawer, 140);
 	//intervalID = setInterval(cbBoxSpinDrawer, 60);
-	intervalID = setInterval(cbRandomLinesDrawer, 10);
+	//intervalID = setInterval(cbRandomLinesDrawer, 10);
 	
 	
 	//drawRotatedBox(10, DegsToRads(15));
+	
 	//drawRotatedBox(10, DegsToRads(45));
 	
 }
