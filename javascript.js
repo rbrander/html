@@ -34,6 +34,8 @@ $(function() {
 		}
 	});
 	
+	trig_init();
+
 	var sldr = $("#slider");
 	sldr.slider({
 		min: 10,

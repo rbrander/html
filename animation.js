@@ -9,7 +9,7 @@ function cbBoxResizeDrawer()
     clearBoard();
     if ((++currOffset % getPixelHeight()) === 0)
         currOffset *= -1;
-    drawCenteredBox(currOffset < 0 ? currOffset*-1 : currOffset);
+    drawEdgeBox(currOffset < 0 ? currOffset*-1 : currOffset);
 }
 
 function cbBoxSpinDrawer()
@@ -54,7 +54,7 @@ function drawSineWave(offset)
     var baseline = Math.floor(getPixelHeight() / 2);
     
     for (var x = 0; x < getPixelWidth(); x++)
-        drawPixel(x, baseline + (baseline*0.8 * Math.sin(offset + rpp * x)), colorPixelOn);
+        drawPixel(x, baseline + (baseline*0.8 * sin(offset + rpp * x)), colorPixelOn);
 }
 
 function getRadiansPerPixel()
@@ -87,10 +87,10 @@ function cbCircleOfLinesDrawer()
 	var hw = getPixelWidth()/2;
 	var hh = getPixelHeight()/2;
 	
-	var x1 = Math.round(hw + radius * Math.cos(DegsToRads(currOffset)));
-	var y1 = Math.round(hh + radius * Math.sin(DegsToRads(currOffset)));
-	var x2 = Math.round(hw + radius * Math.cos(DegsToRads(currOffset+180)));
-	var y2 = Math.round(hh + radius * Math.sin(DegsToRads(currOffset+180)));
+	var x1 = Math.round(hw + radius * cos(DegsToRads(currOffset)));
+	var y1 = Math.round(hh + radius * sin(DegsToRads(currOffset)));
+	var x2 = Math.round(hw + radius * cos(DegsToRads(currOffset+180)));
+	var y2 = Math.round(hh + radius * sin(DegsToRads(currOffset+180)));
 	
 	drawLine(x1, y1, x2, y2);
 	drawPixel(hw,hh, "blue");
