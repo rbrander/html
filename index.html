@@ -2,8 +2,11 @@
 <html>
     <head>
         <title>Pixels</title>
+		<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
         <script type="text/javascript" src="javascript.js"></script>
+        <script type="text/javascript" src="point.js"></script>
         <script type="text/javascript" src="drawing.js"></script>
         <script type="text/javascript" src="animation.js"></script>
         <link rel="stylesheet" type="text/css" href="stylesheet.css" />
@@ -12,12 +15,37 @@
         <h1>Pixels!</h1>
         <hr />
         <center>
-			<button type="button" onclick="launch()">Start</button>
-			<button type="button" onclick="clearInterval(intervalID)">Stop</button>
-			<button type="button" onclick="document.location.reload()">Reload</button>
-			<button type="button" onclick="clearBoard()">Clear</button>
+			<div>
+				<label for="animationSelector">Animation:</label>
+				<select name="animationSelector" id="animationSelector">
+					<option value="SineWave">Sine Wave</option>
+					<option value="BoxResize">Box Resize</option>
+					<option value="BoxSpin" selected>Box Spin</option>
+					<option value="RandomLines">Random Lines</option>
+					<option value="CircleOfLines">Circle of Lines</option>
+				</select>
+			</div>
+			<div>
+				<button type="button" onclick="start()">Start</button>
+				<button type="button" onclick="stop()">Stop</button>
+				<button type="button" onclick="document.location.reload()">Reload</button>
+				<button type="button" onclick="clearBoard()">Clear</button>
+				<input type="text" style="width: 50px;" id="delay" name="delay" />
+			</div>
+			<div id="slider" />
 			<br/>
-			<canvas id="canvas" width="300" height="200" style="border: 1px dotted black;" />
+			<div>
+				<canvas id="canvas" width="300" height="200" />
+			</div>
+			<br />
+			<div id="divFPS" style="text-align:center; display:none;">
+				<label for="FPS">Frames per Second: </label>
+				<input style="width: 50px; border: 0px;" name="FPS" id="FPS" type="text" />
+			</div>
+			<div id="divFrameDrawSpeed" style="text-align:center; display:none;">
+				<label for="FrameDrawSpeed">Frame Draw Speed: </label>
+				<input style="width: 50px; border: 0px;" name="FrameDrawSpeed" id="FrameDrawSpeed" type="text" />
+			</div>
 		</center>
     </body>
 </html>

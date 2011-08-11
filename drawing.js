@@ -1,13 +1,17 @@
 // drawing.js
 //
 
+var _context = null;
 function getContext()
 {
-    var canvas = $('#canvas')[0];
-    var context = canvas.getContext('2d');
-    return context;
+	if (_context == null) {
+		var canvas = $('#canvas')[0];
+		_context = canvas.getContext('2d');
+	}
+    return _context;
 }
 
+var _pixelWidth = -1;
 function getPixelWidth()
 {
     // Each block looks like this:
@@ -15,15 +19,19 @@ function getPixelWidth()
     // bb  
     // Where X is the pixel and b is just a blank spot
     
+    if (_pixelWidth < 0)
+		_pixelWidth = Math.floor((CANVAS_WIDTH - (BLOCK_SIZE * 2)) / BLOCK_SIZE);
     // leaving one block around the outside as a board
-    
-    return Math.floor((CANVAS_WIDTH - (BLOCK_SIZE * 2)) / BLOCK_SIZE);
+    return _pixelWidth;
 }
 
+var _pixelHeight = -1;
 function getPixelHeight()
 {
-    // leaving one block around the outside as a board
-    return Math.floor((CANVAS_HEIGHT - (BLOCK_SIZE * 2)) / BLOCK_SIZE);
+	// leaving one block around the outside as a board
+    if (_pixelHeight < 0)
+		_pixelHeight = Math.floor((CANVAS_HEIGHT - (BLOCK_SIZE * 2)) / BLOCK_SIZE);
+    return _pixelHeight;
 }
 
 function clearBoard()
@@ -42,6 +50,10 @@ function drawPixel(x, y, color)
 {
 	if (x < 0 || y < 0 || x > getPixelWidth() || y > getPixelHeight())
 		return;
+	
+	x = Math.round(x);
+	y = Math.round(y);
+	
     var ctx = getContext();
     ctx.fillStyle = color;
     ctx.fillRect(BLOCK_SIZE + (x * BLOCK_SIZE), BLOCK_SIZE + (y * BLOCK_SIZE), BLOCK_SIZE / 2, BLOCK_SIZE / 2);
@@ -61,10 +73,10 @@ function drawBox(x1, y1, x2, y2)
 
 function drawLineBox(x1, y1, x2, y2)
 {
-	drawLine(x1, y1, x2, y1);
-	drawLine(x1, y2, x2, y2);
-	drawLine(x1, y1, x1, y2);
-	drawLine(x2, y1, x2, y2);
+	drawLine(x1, y1, x2, y1);	// top
+	drawLine(x2, y1, x2, y2);	// right
+	drawLine(x2, y2, x1, y2);	// bottom
+	drawLine(x1, y2, x1, y1);	// left
 }
 
 // Function will return -1, 0 or +1 which matches the sign of the value passed in
@@ -73,37 +85,31 @@ function sign(a) {
 	return (a < 0 ? -1 : (a > 0 ? +1 : 0));
 }
 
-function drawLine(x1, y1, x2, y2)
+function drawLine(x1, y1, x2, y2) { drawLineColour(x1, y1, x2, y2, colorPixelOn); }
+function drawLineColour(x1, y1, x2, y2, colour)
 {
-	var X = x1;
-	var Y = y1;
-	var xdiff = x2 - x1;
-	var ydiff = y2 - y1;
-	var d1x = sign(xdiff);
-	var d1y = sign(ydiff);
-	var d2x = d1x;
-	var d2y = 0;
-	var xlength = Math.abs(xdiff);
-	var ylength = Math.abs(ydiff);
-	if (xlength <= ylength) {
-		d2x = 0;
-		d2y = d1y;
-		xlength = ylength;
-		ylength = Math.abs(ydiff);
-	}
-	var step = Math.round(xlength / 2);
-	for (var i = 0; i < Math.round(xlength); i++) {	// todo: check if we even need Math.round cause i believe xlength is always an int
-		drawPixel(X, Y, colorPixelOn);
-		step += ylength;
-		if (step >= xlength) {
-			step -= xlength;
-			X += Math.round(d1x);	// todo: check if we need Math.round
-			Y += Math.round(d1y);	// todo: check if we need Math.round
-		} else {
-			X += Math.round(d2x);	// todo: check if we need Math.round
-			Y += Math.round(d2y);	// todo: check if we need Math.round
+	var dx = Math.abs(x2-x1);
+	var dy = Math.abs(y2-y1);
+	var sx = (x1 < x2 ? 1 : -1);
+	var sy = (y1 < y2 ? 1 : -1);
+	var err = dx-dy;
+	
+	// loop
+	while (true) {
+		drawPixel(x1, y1, colour);
+		if (x1 == x2 && y1 == y2)
+			break;
+		var e2 = 2 * err;
+		if (e2 > -dy) {
+			err = err - dy;
+			x1 += sx;
+		}
+		if (e2 < dx) {
+			err = err + dx;
+			y1 += sy;
 		}
 	}
+	// end loop
 }
 
 // draw a box in the middle
@@ -121,95 +127,51 @@ function drawCenteredBox(boxWidth)
 	drawLineBox(x1, y1, x2, y2);
 }
 
-
 function DegsToRads(degrees) {
 	return (Math.PI / 180) * degrees;
 }
 
 function drawRotatedBox(boxDiameter, rads)
 {
-	// http://www.gpwiki.org/index.php/VB:Tutorials:Rotating_A_Point_In_2D
-	/*
-		maxtrix multiplication:
-		[ x, y ] * [cos, -sin
-					sin, cos]
-					
-		x' = x*cos + y*-sin 
-		y' = y*sin, + x*cos
-		
-		given a box:
-		a-----b
-		|     |
-		|	  |
-		c-----d
-	*/
+	// original values
+	var radius = Math.round(boxDiameter / 2);
+	var upperLeft = new Point(-radius, -radius);
+	var upperRight = new Point(+radius, -radius);
+	var lowerLeft = new Point(-radius, +radius);
+	var lowerRight = new Point(+radius, +radius);
 	
-    var width = getPixelWidth();
-	var halfw = Math.floor(width / 2);
-    var height = getPixelHeight();
-	var halfh = Math.floor(height / 2);
-    
-	// relative coordiates to center
-    var ax = Math.floor((width - boxDiameter) / 2);
-    var ay = Math.floor((height - boxDiameter) / 2);
-	var dx = ax + boxDiameter;
-    var dy = ay + boxDiameter;
-	//drawLineBox(ax,ay, dx,dy);
-	/*
-    var ax = Math.floor((width - boxDiameter) / 2) - halfw;
-    var ay = Math.floor((height - boxDiameter) / 2) - halfh;
-	var dx = ax + boxDiameter - halfw;
-    var dy = ay + boxDiameter - halfh;
-	*/
-    var bx = dx
-	var by = ay;
-	var cx = ax;
-	var cy = dy
+	// rotated values
+	var r_upperLeft = rotatePoint(upperLeft, rads);
+	var r_upperRight = rotatePoint(upperRight, rads);
+	var r_lowerLeft = rotatePoint(lowerLeft, rads);
+	var r_lowerRight = rotatePoint(lowerRight, rads);
 	
-	/*
-    var ax2 = Math.floor(halfw + rotateX(ax, ay, rads));
-    var ay2 = Math.floor(halfh + rotateY(ax, ay, rads));
-	var bx2 = Math.floor(halfw + rotateX(bx, by, rads));
-    var by2 = Math.floor(halfh + rotateY(bx, by, rads));
-	var cx2 = Math.floor(halfw + rotateX(cx, cy, rads));
-    var cy2 = Math.floor(halfh + rotateY(cx, cy, rads));
-    var dx2 = Math.floor(halfw + rotateX(dx, dy, rads));
-    var dy2 = Math.floor(halfh + rotateY(dx, dy, rads));
-	*/
+	// center 
+	var hw = Math.round(getPixelWidth() / 2);
+	var hh = Math.round(getPixelHeight() / 2);
+	r_upperLeft.x += hw;
+	r_upperLeft.y += hh;
+	r_upperRight.x += hw;
+	r_upperRight.y += hh;
+	r_lowerLeft.x += hw;
+	r_lowerLeft.y += hh;
+	r_lowerRight.x += hw;
+	r_lowerRight.y += hh;
 	
-	/*
-    var ax2 = Math.floor(rotateX(ax, ay, rads));
-    var ay2 = Math.floor(rotateY(ax, ay, rads));
-	var bx2 = Math.floor(rotateX(bx, by, rads));
-    var by2 = Math.floor(rotateY(bx, by, rads));
-	var cx2 = Math.floor(rotateX(cx, cy, rads));
-    var cy2 = Math.floor(rotateY(cx, cy, rads));
-    var dx2 = Math.floor(rotateX(dx, dy, rads));
-    var dy2 = Math.floor(rotateY(dx, dy, rads));
-	*/
-    var ax2 = Math.floor(rotateXPoint(ax, ay, rads, halfw, halfh));
-    var ay2 = Math.floor(rotateYPoint(ax, ay, rads, halfw, halfh));
-	var bx2 = Math.floor(rotateXPoint(bx, by, rads, halfw, halfh));
-    var by2 = Math.floor(rotateYPoint(bx, by, rads, halfw, halfh));
-	var cx2 = Math.floor(rotateXPoint(cx, cy, rads, halfw, halfh));
-    var cy2 = Math.floor(rotateYPoint(cx, cy, rads, halfw, halfh));
-    var dx2 = Math.floor(rotateXPoint(dx, dy, rads, halfw, halfh));
-    var dy2 = Math.floor(rotateYPoint(dx, dy, rads, halfw, halfh));
-	
-	console.log("before (" + ax + ", " + ay + "), (" + bx + ", " + by + "), (" + cx + ", " + cy + "), (" + dx + ", " + dy + ")");
-	console.log("after  (" + ax2 + ", " + ay2 + "), (" + bx2 + ", " + by2 + "), (" + cx2 + ", " + cy2 + "), (" + dx2 + ", " + dy2 + ")");
-	
-	drawLine(ax2, ay2, bx2, by2);
-	drawLine(bx2, by2, dx2, dy2);
-	drawLine(cx2, cy2, dx2, dy2);
-	drawLine(ax2, ay2, cx2, cy2);
-	
-	// draw red dots for the corners
-	var colorRed = "rgb(230, 0, 0)";
-	drawPixel(ax2, ay2, colorRed);
-	drawPixel(bx2, by2, colorRed);
-	drawPixel(cx2, cy2, colorRed);
-	drawPixel(dx2, dy2, colorRed);
+	// draw lines
+	drawLinePt(r_upperLeft, r_upperRight);
+	drawLinePt(r_upperRight, r_lowerRight);
+	drawLinePt(r_lowerRight, r_lowerLeft);
+	drawLinePt(r_lowerLeft, r_upperLeft);
+}
+
+function drawLinePt(pt1, pt2)
+{
+	drawLine(pt1.x, pt1.y, pt2.x, pt2.y);
+}
+
+function rotatePoint(pt, rads) {
+	return new Point(Math.floor((pt.x * Math.cos(rads)) - (pt.y * Math.sin(rads))), Math.floor((pt.x * Math.sin(rads)) + (pt.y * Math.cos(rads))));
 }
 
 function rotateX(x, y, rads) {
@@ -221,7 +183,11 @@ function rotateX(x, y, rads) {
 function rotateXPoint(x, y, rads, px, py)
 {
 	// RotatePoint.X = pOrigin.X + ( Cos(D2R(Degrees)) * (pPoint.X - pOrigin.X) - Sin(D2R(Degrees)) * (pPoint.Y - pOrigin.Y) )
-	return Math.floor(px + ((x-px) * Math.cos(rads)) - ((y-py) * Math.sin(rads)));
+	
+	// old way .. doesn't work well
+	// return Math.floor(px + ((x-px) * Math.cos(rads)) - ((y-py) * Math.sin(rads)));
+	
+	return Math.round(px + (x * Math.cos(rads)));
 }
 
 function rotateY(x, y, rads) {
@@ -232,7 +198,10 @@ function rotateY(x, y, rads) {
 function rotateYPoint(x, y, rads, px, py)
 {
 	// RotatePoint.Y = pOrigin.Y + ( Sin(D2R(Degrees)) * (pPoint.X - pOrigin.X) + Cos(D2R(Degrees)) * (pPoint.Y - pOrigin.Y) )
-	return Math.floor(py + ((x - px) * Math.sin(rads)) + ((y-py) * Math.cos(rads)));
+	// old way... doesn't work well
+	//return Math.floor(py + ((x - px) * Math.sin(rads)) + ((y-py) * Math.cos(rads)));
+	
+	return Math.round(py + (x * Math.sin(rads)));
 }
 
 // mostly for testing
