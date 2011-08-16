@@ -97,3 +97,13 @@ function cbCircleOfLinesDrawer()
 	drawPixel(x1,y1, "red");
 	drawPixel(x2,y2, "red");
 }
+
+
+// --- 3D Box -------------------
+function cb3DBoxDrawer()
+{
+	if (++currOffset == 90)
+		currOffset = 0;
+	clearBoard();
+	draw3DBox(DegsToRads(currOffset));
+}

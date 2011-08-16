@@ -160,11 +160,70 @@ function drawRotatedBox(boxDiameter, rads)
 	drawLinePt(r_lowerLeft, r_upperLeft);
 }
 
-function drawLinePt(pt1, pt2)
-{
+function drawLinePt(pt1, pt2) {
 	drawLine(pt1.x, pt1.y, pt2.x, pt2.y);
 }
 
 function rotatePoint(pt, rads) {
 	return new Point(Math.floor((pt.x * cos(rads)) - (pt.y * sin(rads))), Math.floor((pt.x * sin(rads)) + (pt.y * cos(rads))));
 }
+
+function project3DptOnto2Dplane(x, y, z)
+{
+	var planeDepth = 256;
+	var c = planeDepth / z;
+	var x1 = x * c;
+	var y1 = y * c;
+	return new Point(x1, y1);
+}
+
+function isOnScreen(x, y)
+{
+	var hw = getPixelWidth() / 2;
+	var hh = getPixelHeight() / 2;
+	return (-hw <= x && x <= hw) && (-hh <= y && y <= hh);
+}
+
+function draw3DBox(rads) 
+{
+	var boxCenterZ = 200;
+	var xOffset = Math.floor(getPixelWidth() / 2);
+	var yOffset = Math.floor(getPixelHeight() / 2);
+	drawPixel(xOffset, yOffset, colorPixelOn);
+	
+	var boxWidth = 20;
+	var halfBoxWidth = boxWidth / 2;
+	var numPoints = 8;
+	var pointSigns = new Array(new Point(-1, 1), new Point(1, 1), new Point(1, -1), new Point(-1, -1));
+	var boxPoints = new Array();
+	for (var i = 0; i < 4; i++) {
+		boxPoints[i] = new Point(
+			halfBoxWidth * pointSigns[i % pointSigns.length].x, 
+			halfBoxWidth * pointSigns[i % pointSigns.length].y);
+if (fardad == 1)
+		console.log("boxPoint["+i+"] = (" + boxPoints[i].x + ", "+ boxPoints[i].y + ")");
+	}
+	
+	var pt3D = new Array();
+	// closest side, starting at upper left, going clockwise, then farthest side, upper left, clockwise
+	for (var i = 0; i < 8; i ++)
+		pt3D[i] = new Point3D(boxPoints[i%4].x, boxPoints[i%4].y, (Math.floor(i/4)*2-1)*(boxCenterZ*5));
+	
+	var pt_colors = new Array("red", "blue");
+	for (var i = 0; i < 8; i ++) {
+		var pt = project3DptOnto2Dplane(pt3D[i].x, pt3D[i].y, pt3D[i].z);
+		var x = xOffset + Math.floor(pt.x);
+		var y = yOffset + Math.floor(pt.y);
+		drawPixel(x, y, pt_colors[i%4]);
+		if (fardad == 1) {
+			//if (i == 0 || i == 7)
+			console.log("i = " + i + "; ("+x+", "+y+")  " + (isOnScreen(x, y) ? 'On Screen!' : ''));
+		}
+	}
+	if (fardad == 1) {
+		console.log("Half Width: " + xOffset);
+		console.log("Half Height: " + yOffset);
+	}
+		 fardad = 0;
+}
+var fardad = 1;
