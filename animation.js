@@ -105,5 +105,6 @@ function cb3DBoxDrawer()
 	if (++currOffset == 90)
 		currOffset = 0;
 	clearBoard();
-	draw3DBox(DegsToRads(currOffset));
+	//draw3DBox(DegsToRads(currOffset), 200, 20);
+	draw3DBox(DegsToRads(currOffset), 50, 20);
 }

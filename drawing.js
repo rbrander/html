@@ -184,14 +184,14 @@ function isOnScreen(x, y)
 	return (-hw <= x && x <= hw) && (-hh <= y && y <= hh);
 }
 
-function draw3DBox(rads) 
+function draw3DBox(rads, boxCenterZ, boxWidth) 
 {
-	var boxCenterZ = 200;
+	//var boxCenterZ = 200;
 	var xOffset = Math.floor(getPixelWidth() / 2);
 	var yOffset = Math.floor(getPixelHeight() / 2);
 	drawPixel(xOffset, yOffset, colorPixelOn);
 	
-	var boxWidth = 20;
+	//var boxWidth = 20;
 	var halfBoxWidth = boxWidth / 2;
 	var numPoints = 8;
 	var pointSigns = new Array(new Point(-1, 1), new Point(1, 1), new Point(1, -1), new Point(-1, -1));
@@ -200,30 +200,26 @@ function draw3DBox(rads)
 		boxPoints[i] = new Point(
 			halfBoxWidth * pointSigns[i % pointSigns.length].x, 
 			halfBoxWidth * pointSigns[i % pointSigns.length].y);
-if (fardad == 1)
-		console.log("boxPoint["+i+"] = (" + boxPoints[i].x + ", "+ boxPoints[i].y + ")");
 	}
 	
 	var pt3D = new Array();
 	// closest side, starting at upper left, going clockwise, then farthest side, upper left, clockwise
-	for (var i = 0; i < 8; i ++)
-		pt3D[i] = new Point3D(boxPoints[i%4].x, boxPoints[i%4].y, (Math.floor(i/4)*2-1)*(boxCenterZ*5));
+	for (var i = 0; i < 8; i++)
+		pt3D[i] = new Point3D(boxPoints[i%4].x, boxPoints[i%4].y, (Math.floor(i/4)*2+1)*(boxCenterZ*5));
 	
 	var pt_colors = new Array("red", "blue");
-	for (var i = 0; i < 8; i ++) {
-		var pt = project3DptOnto2Dplane(pt3D[i].x, pt3D[i].y, pt3D[i].z);
+	var pts = new Array();
+	for (var i = 0; i < 8; i++) {
+		var pt = rotatePoint(project3DptOnto2Dplane(pt3D[i].x, pt3D[i].y, pt3D[i].z), rads);
 		var x = xOffset + Math.floor(pt.x);
 		var y = yOffset + Math.floor(pt.y);
-		drawPixel(x, y, pt_colors[i%4]);
-		if (fardad == 1) {
-			//if (i == 0 || i == 7)
-			console.log("i = " + i + "; ("+x+", "+y+")  " + (isOnScreen(x, y) ? 'On Screen!' : ''));
-		}
+		pts[i] = new Point(x, y);
+//		drawLinePt(pt1, pt2);
+		//drawPixel(x, y, pt_colors[Math.floor(i/4)]);
 	}
-	if (fardad == 1) {
-		console.log("Half Width: " + xOffset);
-		console.log("Half Height: " + yOffset);
+	for (var i = 0; i < 4; i++) {
+		drawLinePt(pts[i], pts[(i+1)%4]);	// front square
+		drawLinePt(pts[i+4], pts[(i+1)%4+4]);	// back square
+		drawLinePt(pts[i], pts[i+4]);		// connecting lines
 	}
-		 fardad = 0;
 }
-var fardad = 1;

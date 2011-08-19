@@ -34,7 +34,7 @@ $(function() {
 		}
 	});
 	
-	trig_init();
+	trig_init();	// populates lookup tables
 
 	var sldr = $("#slider");
 	sldr.slider({
